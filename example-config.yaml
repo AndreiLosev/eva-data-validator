@@ -1,0 +1,17 @@
+bus:
+  path: localhost:10001
+command: svc/eva-data-validator
+react_to_fail: true
+timeout:
+  startup: 30.0
+user: nobody
+workers: 1
+config:
+  validations:
+    product:
+      barcode: "required|string"
+      multiplicity: "required|integer|min:1|max:100"
+      packaging_type: "nullable|string"
+    sensor_reading:
+      value: "required|numeric|min:0"
+      active: "required|boolean"

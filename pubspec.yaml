@@ -1,0 +1,16 @@
+name: eva_data_validator
+description: Laravel-like data validation service for EVA.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  eva_sdk:
+    path: ../eva_sdk
+  path: ^1.9.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.25.6
