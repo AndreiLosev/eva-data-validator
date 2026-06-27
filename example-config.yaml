@@ -8,6 +8,14 @@ user: nobody
 workers: 1
 config:
   validations:
+    dictionary_product:
+      mp: "required|string"
+      code_rc: "required|integer|unique:db.dictionary.product,code_rc"
+      name: "required|string"
+      multiplicity: "nullable|integer|min:1"
+      barcode: "required|string|unique:db.dictionary.product,barcode"
+      subject: "required|string"
+      packaging_type: "nullable|string"
     product:
       barcode: "required|string|unique:softkip.generic.db,barcode"
       multiplicity: "required|integer|min:1|max:100"
