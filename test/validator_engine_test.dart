@@ -2,28 +2,44 @@ import 'package:eva_data_validator/config/config.dart';
 import 'package:eva_data_validator/validator/validator_engine.dart';
 import 'package:test/test.dart';
 
+import 'fake_unique_checker.dart';
+
 void main() {
   late ValidatorEngine engine;
+  late FakeUniqueChecker checker;
 
   setUp(() {
     ValidatorEngine.resetForTests();
+    checker = FakeUniqueChecker();
     engine = ValidatorEngine.getInstance(
-      Config.fromMap({
-        'validations': {
-          'product': {
-            'barcode': 'required|string',
-            'multiplicity': 'required|integer|min:1|max:100',
-            'packaging_type': 'nullable|string',
-          },
-          'sensor_reading': {
-            'value': 'required|numeric|min:0',
-            'active': 'required|boolean',
-          },
-          'optional_note': {
-            'note': 'sometimes|string|max:10',
+      Config.fromMap(
+        {
+          'validations': {
+            'product': {
+              'barcode': 'required|string',
+              'multiplicity': 'required|integer|min:1|max:100',
+              'packaging_type': 'nullable|string',
+            },
+            'sensor_reading': {
+              'value': 'required|numeric|min:0',
+              'active': 'required|boolean',
+            },
+            'optional_note': {
+              'note': 'sometimes|string|max:10',
+            },
+            'product_unique': {
+              'barcode': 'required|string|unique:softkip.generic.db,barcode',
+              'id': 'sometimes|integer',
+            },
+            'product_update': {
+              'barcode':
+                  'required|string|unique:softkip.generic.db,barcode,id',
+              'id': 'required|integer',
+            },
           },
         },
-      }),
+        uniqueChecker: checker,
+      ),
     );
   });
 
@@ -32,8 +48,8 @@ void main() {
   });
 
   group('ValidatorEngine', () {
-    test('casts string integers and returns validated fields only', () {
-      final result = engine.validate('product', [
+    test('casts string integers and returns validated fields only', () async {
+      final result = await engine.validate('product', [
         {
           'barcode': '123',
           'multiplicity': '5',
@@ -51,8 +67,8 @@ void main() {
       ]);
     });
 
-    test('returns required errors with batch index prefix', () {
-      final result = engine.validate('product', [
+    test('returns required errors with batch index prefix', () async {
+      final result = await engine.validate('product', [
         {'multiplicity': '5'},
       ]);
 
@@ -62,8 +78,8 @@ void main() {
       ]);
     });
 
-    test('returns type and range errors', () {
-      final result = engine.validate('product', [
+    test('returns type and range errors', () async {
+      final result = await engine.validate('product', [
         {
           'barcode': '123',
           'multiplicity': 'abc',
@@ -83,8 +99,8 @@ void main() {
       ]);
     });
 
-    test('casts numeric and boolean values', () {
-      final result = engine.validate('sensor_reading', [
+    test('casts numeric and boolean values', () async {
+      final result = await engine.validate('sensor_reading', [
         {'value': '12.5', 'active': 'true'},
       ]);
 
@@ -94,8 +110,8 @@ void main() {
       ]);
     });
 
-    test('skips sometimes fields when absent', () {
-      final result = engine.validate('optional_note', [
+    test('skips sometimes fields when absent', () async {
+      final result = await engine.validate('optional_note', [
         {},
       ]);
 
@@ -103,8 +119,8 @@ void main() {
       expect(result.data, [{}]);
     });
 
-    test('validates sometimes fields when present', () {
-      final result = engine.validate('optional_note', [
+    test('validates sometimes fields when present', () async {
+      final result = await engine.validate('optional_note', [
         {'note': 'this is too long'},
       ]);
 
@@ -112,14 +128,49 @@ void main() {
       expect(result.errors?['0.note'], isNotEmpty);
     });
 
-    test('throws for unknown schema', () {
+    test('returns unique error when value already exists', () async {
+      checker.seed('softkip.generic.db', 'barcode', '123');
+
+      final result = await engine.validate('product_unique', [
+        {'barcode': '123'},
+      ]);
+
+      expect(result.valid, isFalse);
+      expect(result.errors?['0.barcode'], [
+        'The 0 barcode has already been taken.',
+      ]);
+    });
+
+    test('passes unique check when value is available', () async {
+      final result = await engine.validate('product_unique', [
+        {'barcode': '999'},
+      ]);
+
+      expect(result.valid, isTrue);
+      expect(result.data, [
+        {'barcode': '999'},
+      ]);
+    });
+
+    test('passes unique update when except id is provided', () async {
+      checker.seed('softkip.generic.db', 'barcode', '123');
+
+      final result = await engine.validate('product_update', [
+        {'barcode': '123', 'id': 5},
+      ]);
+
+      expect(result.valid, isTrue);
+      expect(checker.calls.last.exceptId, 5);
+    });
+
+    test('throws for unknown schema', () async {
       expect(
         () => engine.validate('missing', []),
         throwsA(isA<ArgumentError>()),
       );
     });
 
-    test('throws when record is not a dict', () {
+    test('throws when record is not a dict', () async {
       expect(
         () => engine.validate('product', ['not-a-map']),
         throwsA(isA<ArgumentError>()),

@@ -9,7 +9,7 @@ workers: 1
 config:
   validations:
     product:
-      barcode: "required|string"
+      barcode: "required|string|unique:softkip.generic.db,barcode"
       multiplicity: "required|integer|min:1|max:100"
       packaging_type: "nullable|string"
     sensor_reading:

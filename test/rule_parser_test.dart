@@ -8,7 +8,10 @@ import 'package:eva_data_validator/validator/rules/min.dart';
 import 'package:eva_data_validator/validator/rules/nullable.dart';
 import 'package:eva_data_validator/validator/rules/required.dart';
 import 'package:eva_data_validator/validator/rules/string_rule.dart';
+import 'package:eva_data_validator/validator/rules/unique.dart';
 import 'package:test/test.dart';
+
+import 'fake_unique_checker.dart';
 
 void main() {
   group('RuleParser', () {
@@ -46,6 +49,44 @@ void main() {
 
     test('throws on unknown rule', () {
       expect(() => RuleParser.parse('unknown'), throwsFormatException);
+    });
+
+    test('parses unique rule with service id and column', () {
+      final checker = FakeUniqueChecker();
+      final rules = RuleParser.parse(
+        'required|string|unique:softkip.generic.db,barcode',
+        uniqueChecker: checker,
+      );
+      expect(rules[2], isA<UniqueRule>());
+      final unique = rules[2] as UniqueRule;
+      expect(unique.serviceId, 'softkip.generic.db');
+      expect(unique.column, 'barcode');
+      expect(unique.exceptField, isNull);
+    });
+
+    test('parses unique rule with except field', () {
+      final checker = FakeUniqueChecker();
+      final rules = RuleParser.parse(
+        'unique:softkip.generic.db,barcode,id',
+        uniqueChecker: checker,
+      );
+      final unique = rules.single as UniqueRule;
+      expect(unique.exceptField, 'id');
+    });
+
+    test('throws when unique rule has no checker', () {
+      expect(
+        () => RuleParser.parse('unique:softkip.generic.db,barcode'),
+        throwsFormatException,
+      );
+    });
+
+    test('throws when unique rule has no params', () {
+      final checker = FakeUniqueChecker();
+      expect(
+        () => RuleParser.parse('unique:', uniqueChecker: checker),
+        throwsFormatException,
+      );
     });
   });
 }

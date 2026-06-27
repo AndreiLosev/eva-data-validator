@@ -1,4 +1,6 @@
+import 'package:eva_data_validator/db/unique_checker.dart';
 import 'package:eva_data_validator/validator/rules/array_rule.dart';
+import 'package:eva_data_validator/validator/rules/async_rule.dart';
 import 'package:eva_data_validator/validator/rules/between.dart';
 import 'package:eva_data_validator/validator/rules/boolean_rule.dart';
 import 'package:eva_data_validator/validator/rules/email.dart';
@@ -14,26 +16,41 @@ import 'package:eva_data_validator/validator/rules/rule.dart';
 import 'package:eva_data_validator/validator/rules/size.dart';
 import 'package:eva_data_validator/validator/rules/sometimes.dart';
 import 'package:eva_data_validator/validator/rules/string_rule.dart';
+import 'package:eva_data_validator/validator/rules/unique.dart';
 
 class RuleParser {
-  static List<ValidationRule> parse(dynamic source) {
+  static List<ValidationRule> parse(
+    dynamic source, {
+    UniqueChecker? uniqueChecker,
+  }) {
     if (source is String) {
-      return _parsePipeString(source);
+      return _parsePipeString(source, uniqueChecker: uniqueChecker);
     }
     if (source is List) {
-      return source.expand((item) => _parsePipeString(item.toString())).toList();
+      return source
+          .expand((item) => _parsePipeString(item.toString(), uniqueChecker: uniqueChecker))
+          .toList();
     }
     throw FormatException('rules must be a string or list, got ${source.runtimeType}');
   }
 
-  static List<ValidationRule> _parsePipeString(String source) {
+  static List<ValidationRule> _parsePipeString(
+    String source, {
+    UniqueChecker? uniqueChecker,
+  }) {
     if (source.trim().isEmpty) {
       throw FormatException('rules string cannot be empty');
     }
-    return source.split('|').map(_parseRule).toList();
+    return source
+        .split('|')
+        .map((rule) => _parseRule(rule, uniqueChecker: uniqueChecker))
+        .toList();
   }
 
-  static ValidationRule _parseRule(String raw) {
+  static ValidationRule _parseRule(
+    String raw, {
+    UniqueChecker? uniqueChecker,
+  }) {
     final trimmed = raw.trim();
     if (trimmed.isEmpty) {
       throw FormatException('empty rule in rules string');
@@ -79,9 +96,44 @@ class RuleParser {
         return InRule(_parseList(param, 'in'));
       case 'not_in':
         return NotInRule(_parseList(param, 'not_in'));
+      case 'unique':
+        return _parseUniqueRule(param, uniqueChecker);
       default:
         throw FormatException('unknown validation rule: $name');
     }
+  }
+
+  static UniqueRule _parseUniqueRule(String? param, UniqueChecker? uniqueChecker) {
+    if (uniqueChecker == null) {
+      throw FormatException('rule unique requires UniqueChecker');
+    }
+    final (serviceId, column, exceptField) = _parseUniqueParams(param);
+    return UniqueRule(
+      serviceId: serviceId,
+      column: column,
+      exceptField: exceptField,
+      checker: uniqueChecker,
+    );
+  }
+
+  static (String serviceId, String column, String? exceptField) _parseUniqueParams(
+    String? param,
+  ) {
+    if (param == null || param.trim().isEmpty) {
+      throw FormatException('rule unique requires serviceId and column');
+    }
+    final parts = param.split(',').map((e) => e.trim()).toList();
+    if (parts.length < 2) {
+      throw FormatException('rule unique requires serviceId and column');
+    }
+
+    final exceptField = parts.length >= 3 ? parts.removeLast() : null;
+    final column = parts.removeLast();
+    final serviceId = parts.join(',');
+    if (serviceId.isEmpty || column.isEmpty) {
+      throw FormatException('rule unique requires serviceId and column');
+    }
+    return (serviceId, column, exceptField);
   }
 
   static num _parseNum(String? param, String ruleName) {
@@ -170,5 +222,7 @@ bool isTypeRule(ValidationRule rule) {
   }.contains(base);
 }
 
+bool isAsyncRule(ValidationRule rule) => rule is AsyncValidationRule;
+
 bool isConstraintRule(ValidationRule rule) =>
-    !isPresenceRule(rule) && !isTypeRule(rule);
+    !isPresenceRule(rule) && !isTypeRule(rule) && !isAsyncRule(rule);

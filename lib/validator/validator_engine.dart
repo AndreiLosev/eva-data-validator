@@ -1,6 +1,7 @@
 import 'package:eva_data_validator/config/config.dart';
 import 'package:eva_data_validator/config/validation_schema.dart';
 import 'package:eva_data_validator/validator/rule_parser.dart';
+import 'package:eva_data_validator/validator/rules/async_rule.dart';
 import 'package:eva_data_validator/validator/type_caster.dart';
 import 'package:eva_data_validator/validator/validation_result.dart';
 
@@ -23,7 +24,7 @@ class ValidatorEngine {
 
   ValidationSchema? findSchema(String name) => config.schema(name);
 
-  ValidationResult validate(String name, List<dynamic> data) {
+  Future<ValidationResult> validate(String name, List<dynamic> data) async {
     final schema = config.schema(name);
     if (schema == null) {
       throw ArgumentError('unknown validation schema: $name');
@@ -39,7 +40,7 @@ class ValidatorEngine {
       }
       final record = Map<String, dynamic>.from(item.cast());
       final prefix = '$index.';
-      final result = _validateRecord(record, schema, prefix);
+      final result = await _validateRecord(record, schema, prefix);
       if (result.errors.isNotEmpty) {
         allErrors.addAll(result.errors);
       } else if (result.validated != null) {
@@ -53,11 +54,11 @@ class ValidatorEngine {
     return ValidationResult.success(validatedRows);
   }
 
-  _RecordResult _validateRecord(
+  Future<_RecordResult> _validateRecord(
     Map<String, dynamic> data,
     ValidationSchema schema,
     String prefix,
-  ) {
+  ) async {
     final errors = <String, List<String>>{};
     final validated = <String, dynamic>{};
 
@@ -102,6 +103,21 @@ class ValidatorEngine {
         final constraintValue = _constraintValue(value, fieldType);
         for (final rule in applicableRules(rules).where(isConstraintRule)) {
           final message = rule.validate(errorKey, constraintValue);
+          if (message != null) {
+            fieldErrors.add(message);
+            break;
+          }
+        }
+      }
+
+      if (fieldErrors.isEmpty) {
+        final constraintValue = _constraintValue(value, fieldType);
+        for (final rule in applicableRules(rules).where(isAsyncRule)) {
+          final message = await (rule as AsyncValidationRule).validateAsync(
+            errorKey,
+            constraintValue,
+            data,
+          );
           if (message != null) {
             fieldErrors.add(message);
             break;

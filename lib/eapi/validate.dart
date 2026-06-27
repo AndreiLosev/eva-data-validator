@@ -25,7 +25,7 @@ class Validate {
     }
 
     try {
-      return engine.validate(schemaName, data).toMap();
+      return (await engine.validate(schemaName, data)).toMap();
     } on ArgumentError catch (e) {
       throw EvaError(EvaErrorKind.invalidParams, e.message?.toString() ?? '$e');
     }

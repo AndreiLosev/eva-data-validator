@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:eva_data_validator/config/config.dart';
+import 'package:eva_data_validator/db/rpc_unique_checker.dart';
 import 'package:eva_data_validator/eapi/validate.dart';
 import 'package:eva_data_validator/validator/validator_engine.dart';
 import 'package:eva_sdk/eva_sdk.dart';
@@ -28,7 +29,10 @@ void main(List<String> arguments) async {
     }
     await svc().init(info);
 
-    final config = Config.fromMap(svc().config.config);
+    final config = Config.fromMap(
+      svc().config.config,
+      uniqueChecker: RpcUniqueChecker(),
+    );
     ValidatorEngine.getInstance(config);
 
     await svc().block();
