@@ -1,3 +1,4 @@
+import 'package:eva_data_validator/i18n/validation_messages.dart';
 import 'package:eva_data_validator/validator/rules/rule.dart';
 
 class MaxRule extends ValidationRule {
@@ -9,21 +10,25 @@ class MaxRule extends ValidationRule {
   String get name => 'max';
 
   @override
-  String? validate(String attribute, dynamic value) {
+  String? validate(
+    String attribute,
+    dynamic value,
+    ValidationMessages messages,
+  ) {
     if (value is String) {
       if (value.length <= limit) return null;
-      return 'The ${formatAttribute(attribute)} must not be greater than $limit characters.';
+      return messages.maxChars(attribute, limit);
     }
     if (value is List) {
       if (value.length <= limit) return null;
-      return 'The ${formatAttribute(attribute)} must not have more than $limit items.';
+      return messages.maxItems(attribute, limit);
     }
     final num? n = _asNum(value);
     if (n != null) {
       if (n <= limit) return null;
-      return 'The ${formatAttribute(attribute)} must not be greater than $limit.';
+      return messages.maxValue(attribute, limit);
     }
-    return 'The ${formatAttribute(attribute)} must not be greater than $limit.';
+    return messages.maxGeneric(attribute, limit);
   }
 
   num? _asNum(dynamic value) {

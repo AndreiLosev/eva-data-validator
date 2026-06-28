@@ -1,3 +1,4 @@
+import 'package:eva_data_validator/i18n/validation_messages.dart';
 import 'package:eva_data_validator/validator/rules/rule.dart';
 
 class ArrayRule extends ValidationRule {
@@ -5,8 +6,12 @@ class ArrayRule extends ValidationRule {
   String get name => 'array';
 
   @override
-  String? validate(String attribute, dynamic value) {
+  String? validate(
+    String attribute,
+    dynamic value,
+    ValidationMessages messages,
+  ) {
     if (value is List) return null;
-    return 'The ${formatAttribute(attribute)} must be an array.';
+    return messages.array(attribute);
   }
 }

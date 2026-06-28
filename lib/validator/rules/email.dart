@@ -1,3 +1,4 @@
+import 'package:eva_data_validator/i18n/validation_messages.dart';
 import 'package:eva_data_validator/validator/rules/rule.dart';
 
 final _emailPattern = RegExp(
@@ -9,9 +10,13 @@ class EmailRule extends ValidationRule {
   String get name => 'email';
 
   @override
-  String? validate(String attribute, dynamic value) {
+  String? validate(
+    String attribute,
+    dynamic value,
+    ValidationMessages messages,
+  ) {
     final text = value?.toString() ?? '';
     if (_emailPattern.hasMatch(text)) return null;
-    return 'The ${formatAttribute(attribute)} must be a valid email address.';
+    return messages.email(attribute);
   }
 }

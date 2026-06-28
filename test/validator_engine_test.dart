@@ -5,15 +5,22 @@ import 'package:test/test.dart';
 import 'fake_unique_checker.dart';
 
 void main() {
-  late ValidatorEngine engine;
   late FakeUniqueChecker checker;
 
   setUp(() {
     ValidatorEngine.resetForTests();
     checker = FakeUniqueChecker();
-    engine = ValidatorEngine.getInstance(
+  });
+
+  tearDown(() {
+    ValidatorEngine.resetForTests();
+  });
+
+  ValidatorEngine createEngine({String locale = 'en'}) {
+    return ValidatorEngine.getInstance(
       Config.fromMap(
         {
+          'locale': locale,
           'validations': {
             'product': {
               'barcode': 'required|string',
@@ -41,13 +48,15 @@ void main() {
         uniqueChecker: checker,
       ),
     );
-  });
+  }
 
-  tearDown(() {
-    ValidatorEngine.resetForTests();
-  });
+  group('ValidatorEngine en', () {
+    late ValidatorEngine engine;
 
-  group('ValidatorEngine', () {
+    setUp(() {
+      engine = createEngine();
+    });
+
     test('casts string integers and returns validated fields only', () async {
       final result = await engine.validate('product', [
         {
@@ -67,14 +76,14 @@ void main() {
       ]);
     });
 
-    test('returns required errors with batch index prefix', () async {
+    test('returns required errors', () async {
       final result = await engine.validate('product', [
         {'multiplicity': '5'},
       ]);
 
       expect(result.valid, isFalse);
       expect(result.errors?['0.barcode'], [
-        'The 0 barcode field is required.',
+        'The barcode field is required.',
       ]);
     });
 
@@ -92,10 +101,10 @@ void main() {
 
       expect(result.valid, isFalse);
       expect(result.errors?['0.multiplicity'], [
-        'The 0 multiplicity must be an integer.',
+        'The multiplicity must be an integer.',
       ]);
       expect(result.errors?['1.multiplicity'], [
-        'The 1 multiplicity must not be greater than 100.',
+        'The multiplicity must not be greater than 100.',
       ]);
     });
 
@@ -137,7 +146,7 @@ void main() {
 
       expect(result.valid, isFalse);
       expect(result.errors?['0.barcode'], [
-        'The 0 barcode has already been taken.',
+        'The barcode has already been taken.',
       ]);
     });
 
@@ -175,6 +184,38 @@ void main() {
         () => engine.validate('product', ['not-a-map']),
         throwsA(isA<ArgumentError>()),
       );
+    });
+  });
+
+  group('ValidatorEngine ru', () {
+    late ValidatorEngine engine;
+
+    setUp(() {
+      engine = createEngine(locale: 'ru');
+    });
+
+    test('returns required errors in Russian', () async {
+      final result = await engine.validate('product', [
+        {'multiplicity': '5'},
+      ]);
+
+      expect(result.valid, isFalse);
+      expect(result.errors?['0.barcode'], [
+        'Поле barcode обязательно для заполнения.',
+      ]);
+    });
+
+    test('returns unique error in Russian', () async {
+      checker.seed('softkip.generic.db', 'barcode', '123');
+
+      final result = await engine.validate('product_unique', [
+        {'barcode': '123'},
+      ]);
+
+      expect(result.valid, isFalse);
+      expect(result.errors?['0.barcode'], [
+        'Такое значение barcode уже занято.',
+      ]);
     });
   });
 }

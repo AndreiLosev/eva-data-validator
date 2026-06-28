@@ -1,6 +1,6 @@
 import 'package:eva_data_validator/db/unique_checker.dart';
+import 'package:eva_data_validator/i18n/validation_messages.dart';
 import 'package:eva_data_validator/validator/rules/async_rule.dart';
-import 'package:eva_data_validator/validator/rules/rule.dart';
 
 class UniqueRule extends AsyncValidationRule {
   final String serviceId;
@@ -23,6 +23,7 @@ class UniqueRule extends AsyncValidationRule {
     String attribute,
     dynamic value,
     Map<String, dynamic> record,
+    ValidationMessages messages,
   ) async {
     dynamic exceptId;
     if (exceptField != null && record.containsKey(exceptField)) {
@@ -36,7 +37,7 @@ class UniqueRule extends AsyncValidationRule {
       exceptId: exceptId,
     );
     if (taken) {
-      return 'The ${formatAttribute(attribute)} has already been taken.';
+      return messages.unique(attribute);
     }
     return null;
   }

@@ -1,3 +1,4 @@
+import 'package:eva_data_validator/i18n/validation_messages.dart';
 import 'package:eva_data_validator/validator/rules/rule.dart';
 
 class BetweenRule extends ValidationRule {
@@ -10,23 +11,27 @@ class BetweenRule extends ValidationRule {
   String get name => 'between';
 
   @override
-  String? validate(String attribute, dynamic value) {
+  String? validate(
+    String attribute,
+    dynamic value,
+    ValidationMessages messages,
+  ) {
     if (value is String) {
       final len = value.length;
       if (len >= min && len <= max) return null;
-      return 'The ${formatAttribute(attribute)} must be between $min and $max characters.';
+      return messages.betweenChars(attribute, min, max);
     }
     if (value is List) {
       final len = value.length;
       if (len >= min && len <= max) return null;
-      return 'The ${formatAttribute(attribute)} must have between $min and $max items.';
+      return messages.betweenItems(attribute, min, max);
     }
     final num? n = _asNum(value);
     if (n != null) {
       if (n >= min && n <= max) return null;
-      return 'The ${formatAttribute(attribute)} must be between $min and $max.';
+      return messages.betweenValue(attribute, min, max);
     }
-    return 'The ${formatAttribute(attribute)} must be between $min and $max.';
+    return messages.betweenGeneric(attribute, min, max);
   }
 
   num? _asNum(dynamic value) {

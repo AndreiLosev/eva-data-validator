@@ -9,6 +9,7 @@ void main() {
     ValidatorEngine.resetForTests();
     ValidatorEngine.getInstance(
       Config.fromMap({
+        'locale': 'en',
         'validations': {
           'product': {
             'barcode': 'required|string',

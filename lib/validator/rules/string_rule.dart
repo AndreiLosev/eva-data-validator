@@ -1,3 +1,4 @@
+import 'package:eva_data_validator/i18n/validation_messages.dart';
 import 'package:eva_data_validator/validator/rules/rule.dart';
 
 class StringRule extends ValidationRule {
@@ -5,8 +6,12 @@ class StringRule extends ValidationRule {
   String get name => 'string';
 
   @override
-  String? validate(String attribute, dynamic value) {
+  String? validate(
+    String attribute,
+    dynamic value,
+    ValidationMessages messages,
+  ) {
     if (value is String) return null;
-    return 'The ${formatAttribute(attribute)} must be a string.';
+    return messages.string(attribute);
   }
 }

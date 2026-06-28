@@ -7,6 +7,7 @@ timeout:
 user: nobody
 workers: 1
 config:
+  locale: ru
   validations:
     dictionary_product:
       mp: "required|string"
@@ -16,6 +17,15 @@ config:
       barcode: "required|string|unique:db.dictionary.product,barcode"
       subject: "required|string"
       packaging_type: "nullable|string"
+    product_update:
+      id: "required|integer"
+      mp: "string"
+      code_rc: "integer|unique:db.dictionary.product,code_rc,id"
+      name: "string"
+      multiplicity: "integer|min:1"
+      barcode: "string|unique:db.dictionary.product,barcode,id"
+      subject: "string"
+      packaging_type: "string"
     product:
       barcode: "required|string|unique:softkip.generic.db,barcode"
       multiplicity: "required|integer|min:1|max:100"

@@ -1,3 +1,4 @@
+import 'package:eva_data_validator/i18n/validation_messages.dart';
 import 'package:eva_data_validator/validator/rules/rule.dart';
 
 class InRule extends ValidationRule {
@@ -9,10 +10,14 @@ class InRule extends ValidationRule {
   String get name => 'in';
 
   @override
-  String? validate(String attribute, dynamic value) {
+  String? validate(
+    String attribute,
+    dynamic value,
+    ValidationMessages messages,
+  ) {
     final text = value?.toString() ?? '';
     if (allowed.contains(text)) return null;
-    return 'The selected ${formatAttribute(attribute)} is invalid.';
+    return messages.inInvalid(attribute);
   }
 }
 
@@ -25,9 +30,13 @@ class NotInRule extends ValidationRule {
   String get name => 'not_in';
 
   @override
-  String? validate(String attribute, dynamic value) {
+  String? validate(
+    String attribute,
+    dynamic value,
+    ValidationMessages messages,
+  ) {
     final text = value?.toString() ?? '';
     if (!forbidden.contains(text)) return null;
-    return 'The selected ${formatAttribute(attribute)} is invalid.';
+    return messages.notInInvalid(attribute);
   }
 }

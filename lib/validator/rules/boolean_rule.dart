@@ -1,3 +1,4 @@
+import 'package:eva_data_validator/i18n/validation_messages.dart';
 import 'package:eva_data_validator/validator/rules/rule.dart';
 
 class BooleanRule extends ValidationRule {
@@ -8,13 +9,17 @@ class BooleanRule extends ValidationRule {
   String get name => 'boolean';
 
   @override
-  String? validate(String attribute, dynamic value) {
+  String? validate(
+    String attribute,
+    dynamic value,
+    ValidationMessages messages,
+  ) {
     if (value is bool) return null;
     if (value is int && (value == 0 || value == 1)) return null;
     if (value is String) {
       final lower = value.toLowerCase();
       if (truthy.contains(lower) || falsy.contains(lower)) return null;
     }
-    return 'The ${formatAttribute(attribute)} field must be true or false.';
+    return messages.boolean(attribute);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:eva_data_validator/config/config.dart';
 import 'package:eva_data_validator/config/validation_schema.dart';
+import 'package:eva_data_validator/i18n/validation_messages.dart';
 import 'package:eva_data_validator/validator/rule_parser.dart';
 import 'package:eva_data_validator/validator/rules/async_rule.dart';
 import 'package:eva_data_validator/validator/type_caster.dart';
@@ -9,8 +10,10 @@ class ValidatorEngine {
   static ValidatorEngine? _instance;
 
   final Config config;
+  final ValidationMessages messages;
 
-  ValidatorEngine._(this.config);
+  ValidatorEngine._(this.config)
+      : messages = ValidationMessages.forLocale(config.locale);
 
   factory ValidatorEngine.getInstance([Config? config]) {
     if (_instance == null && config == null) {
@@ -82,7 +85,7 @@ class ValidatorEngine {
       final fieldErrors = <String>[];
 
       for (final rule in applicableRules(rules).where(isPresenceRule)) {
-        final message = rule.validate(errorKey, value);
+        final message = rule.validate(errorKey, value, messages);
         if (message != null) {
           fieldErrors.add(message);
           break;
@@ -91,7 +94,7 @@ class ValidatorEngine {
 
       if (fieldErrors.isEmpty) {
         for (final rule in applicableRules(rules).where(isTypeRule)) {
-          final message = rule.validate(errorKey, value);
+          final message = rule.validate(errorKey, value, messages);
           if (message != null) {
             fieldErrors.add(message);
             break;
@@ -102,7 +105,7 @@ class ValidatorEngine {
       if (fieldErrors.isEmpty) {
         final constraintValue = _constraintValue(value, fieldType);
         for (final rule in applicableRules(rules).where(isConstraintRule)) {
-          final message = rule.validate(errorKey, constraintValue);
+          final message = rule.validate(errorKey, constraintValue, messages);
           if (message != null) {
             fieldErrors.add(message);
             break;
@@ -117,6 +120,7 @@ class ValidatorEngine {
             errorKey,
             constraintValue,
             data,
+            messages,
           );
           if (message != null) {
             fieldErrors.add(message);

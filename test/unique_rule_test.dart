@@ -1,3 +1,4 @@
+import 'package:eva_data_validator/i18n/validation_messages.dart';
 import 'package:eva_data_validator/validator/rules/unique.dart';
 import 'package:test/test.dart';
 
@@ -6,6 +7,7 @@ import 'fake_unique_checker.dart';
 void main() {
   late FakeUniqueChecker checker;
   late UniqueRule rule;
+  final messages = ValidationMessages.forLocale('en');
 
   setUp(() {
     checker = FakeUniqueChecker();
@@ -18,7 +20,7 @@ void main() {
 
   group('UniqueRule', () {
     test('passes when value is not taken', () async {
-      final message = await rule.validateAsync('0.barcode', '123', {});
+      final message = await rule.validateAsync('0.barcode', '123', {}, messages);
       expect(message, isNull);
       expect(checker.calls, hasLength(1));
       expect(checker.calls.first.exceptId, isNull);
@@ -27,8 +29,8 @@ void main() {
     test('fails when value is taken', () async {
       checker.seed('softkip.generic.db', 'barcode', '123');
 
-      final message = await rule.validateAsync('0.barcode', '123', {});
-      expect(message, 'The 0 barcode has already been taken.');
+      final message = await rule.validateAsync('0.barcode', '123', {}, messages);
+      expect(message, 'The barcode has already been taken.');
     });
 
     test('passes update when except id matches existing row', () async {
@@ -40,7 +42,12 @@ void main() {
       );
       checker.seed('softkip.generic.db', 'barcode', '123');
 
-      final message = await rule.validateAsync('0.barcode', '123', {'id': 5});
+      final message = await rule.validateAsync(
+        '0.barcode',
+        '123',
+        {'id': 5},
+        messages,
+      );
       expect(message, isNull);
       expect(checker.calls.first.exceptId, 5);
     });
@@ -54,7 +61,7 @@ void main() {
       );
       checker.seed('softkip.generic.db', 'barcode', '123');
 
-      final message = await rule.validateAsync('0.barcode', '123', {});
+      final message = await rule.validateAsync('0.barcode', '123', {}, messages);
       expect(message, isNotNull);
       expect(checker.calls.first.exceptId, isNull);
     });

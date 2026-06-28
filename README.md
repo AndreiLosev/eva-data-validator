@@ -17,7 +17,7 @@ Success response:
 
 Validation failure:
 ```json
-{"valid": false, "errors": {"0.field": ["The 0 field field is required."]}}
+{"valid": false, "errors": {"0.field": ["The field field is required."]}}
 ```
 
 ## Local run
@@ -30,4 +30,9 @@ dart run bin/eva_data_validator.dart --local
 
 See [example-config.yaml](example-config.yaml).
 
+- `locale` — error message language (`en` by default, `ru` for Russian)
+- `validations` — named validation schemas
+
 Rules use Laravel pipe syntax, for example: `required|integer|min:1|max:100`.
+
+Unique values are checked via `eva-generic-db-service`, for example: `unique:db.dictionary.product,barcode`.

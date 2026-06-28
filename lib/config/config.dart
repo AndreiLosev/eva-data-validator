@@ -2,14 +2,16 @@ import 'package:eva_data_validator/config/validation_schema.dart';
 import 'package:eva_data_validator/db/unique_checker.dart';
 
 class Config {
+  final String locale;
   final Map<String, ValidationSchema> validations;
 
-  Config(this.validations);
+  Config(this.locale, this.validations);
 
   factory Config.fromMap(
     Map<dynamic, dynamic> map, {
     UniqueChecker? uniqueChecker,
   }) {
+    final locale = _parseLocale(map['locale']);
     final raw = map['validations'];
     if (raw is! Map || raw.isEmpty) {
       throw Exception('config.validations must be a non-empty map');
@@ -32,7 +34,14 @@ class Config {
       );
     }
 
-    return Config(validations);
+    return Config(locale, validations);
+  }
+
+  static String _parseLocale(dynamic value) {
+    if (value == null) return 'en';
+    final text = value.toString().trim().toLowerCase();
+    if (text.isEmpty) return 'en';
+    return text.split('-').first;
   }
 
   ValidationSchema? schema(String name) => validations[name];

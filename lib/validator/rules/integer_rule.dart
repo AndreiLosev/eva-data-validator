@@ -1,3 +1,4 @@
+import 'package:eva_data_validator/i18n/validation_messages.dart';
 import 'package:eva_data_validator/validator/rules/rule.dart';
 
 class IntegerRule extends ValidationRule {
@@ -9,12 +10,16 @@ class IntegerRule extends ValidationRule {
   String get name => strict ? 'integer:strict' : 'integer';
 
   @override
-  String? validate(String attribute, dynamic value) {
+  String? validate(
+    String attribute,
+    dynamic value,
+    ValidationMessages messages,
+  ) {
     if (value is int && value is! double) return null;
     if (!strict && value is String) {
       final parsed = int.tryParse(value);
       if (parsed != null && !value.contains('.')) return null;
     }
-    return 'The ${formatAttribute(attribute)} must be an integer.';
+    return messages.integer(attribute);
   }
 }
