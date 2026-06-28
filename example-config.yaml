@@ -9,7 +9,7 @@ workers: 1
 config:
   locale: ru
   validations:
-    dictionary_product:
+    product_create:
       mp: "required|string"
       code_rc: "required|integer|unique:db.dictionary.product,code_rc"
       name: "required|string"
@@ -19,17 +19,20 @@ config:
       packaging_type: "nullable|string"
     product_update:
       id: "required|integer"
-      mp: "string"
-      code_rc: "integer|unique:db.dictionary.product,code_rc,id"
-      name: "string"
-      multiplicity: "integer|min:1"
-      barcode: "string|unique:db.dictionary.product,barcode,id"
-      subject: "string"
-      packaging_type: "string"
-    product:
-      barcode: "required|string|unique:softkip.generic.db,barcode"
-      multiplicity: "required|integer|min:1|max:100"
-      packaging_type: "nullable|string"
-    sensor_reading:
-      value: "required|numeric|min:0"
-      active: "required|boolean"
+      mp: "sometimes|string"
+      code_rc: "sometimes|integer|unique:db.dictionary.product,code_rc,id"
+      name: "sometimes|string"
+      multiplicity: "sometimes|integer|min:1"
+      barcode: "sometimes|string|unique:db.dictionary.product,barcode,id"
+      subject: "sometimes|string"
+      packaging_type: "sometimes|string"
+    product_delete:
+      id: "required|integer"
+    product_get:
+      mp: "sometimes|string"
+      code_rc: "sometimes|integer|unique:db.dictionary.product,code_rc,id"
+      name: "sometimes|string"
+      multiplicity: "sometimes|integer|min:1"
+      barcode: "sometimes|string|unique:db.dictionary.product,barcode,id"
+      subject: "sometimes|string"
+      packaging_type: "sometimes|string"
