@@ -10,7 +10,7 @@ config:
   locale: ru
   validations:
     product_create:
-      mp: "required|string"
+      mp: "required|string|in:Ozon,WB,Other"
       code_rc: "required|integer|unique:db.dictionary.product,code_rc"
       name: "required|string"
       multiplicity: "nullable|integer|min:1"
@@ -18,8 +18,8 @@ config:
       subject: "required|string"
       packaging_type: "nullable|string"
     product_update:
-      id: "required|integer"
-      mp: "sometimes|string"
+      id: "required|integer|min:1"
+      mp: "sometimes|string|in:Ozon,WB,Other"
       code_rc: "sometimes|integer|unique:db.dictionary.product,code_rc,id"
       name: "sometimes|string"
       multiplicity: "sometimes|integer|min:1"
@@ -27,9 +27,9 @@ config:
       subject: "sometimes|string"
       packaging_type: "sometimes|string"
     product_delete:
-      id: "required|integer"
+      id: "required|integer|min:1"
     product_get:
-      mp: "sometimes|string"
+      mp: "sometimes|string|in:Ozon,WB,Other"
       code_rc: "sometimes|integer|unique:db.dictionary.product,code_rc,id"
       name: "sometimes|string"
       multiplicity: "sometimes|integer|min:1"

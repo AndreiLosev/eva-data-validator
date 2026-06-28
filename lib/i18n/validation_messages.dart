@@ -44,8 +44,12 @@ abstract class ValidationMessages {
   String betweenValue(String attribute, num min, num max, [String? alias]);
   String betweenGeneric(String attribute, num min, num max, [String? alias]);
   String regex(String attribute, [String? alias]);
-  String inInvalid(String attribute, [String? alias]);
-  String notInInvalid(String attribute, [String? alias]);
+  String inInvalid(String attribute, List<String> allowed, [String? alias]);
+  String notInInvalid(
+    String attribute,
+    List<String> forbidden, [
+    String? alias,
+  ]);
   String unique(String attribute, [String? alias]);
 }
 
@@ -147,12 +151,16 @@ class ValidationMessagesEn extends ValidationMessages {
       'The ${resolveAttributeName(attribute, alias)} format is invalid.';
 
   @override
-  String inInvalid(String attribute, [String? alias]) =>
-      'The selected ${resolveAttributeName(attribute, alias)} is invalid.';
+  String inInvalid(String attribute, List<String> allowed, [String? alias]) =>
+      'The selected ${resolveAttributeName(attribute, alias)} is invalid, permitted values: $allowed.';
 
   @override
-  String notInInvalid(String attribute, [String? alias]) =>
-      'The selected ${resolveAttributeName(attribute, alias)} is invalid.';
+  String notInInvalid(
+    String attribute,
+    List<String> forbidden, [
+    String? alias,
+  ]) =>
+      'The selected ${resolveAttributeName(attribute, alias)} is invalid, forbidden: $forbidden.';
 
   @override
   String unique(String attribute, [String? alias]) =>
@@ -257,12 +265,16 @@ class ValidationMessagesRu extends ValidationMessages {
       'Поле ${resolveAttributeName(attribute, alias)} имеет неверный формат.';
 
   @override
-  String inInvalid(String attribute, [String? alias]) =>
-      'Выбранное значение для ${resolveAttributeName(attribute, alias)} некорректно.';
+  String inInvalid(String attribute, List<String> allowed, [String? alias]) =>
+      'Выбранное значение для ${resolveAttributeName(attribute, alias)} некорректно, разрешены: $allowed.';
 
   @override
-  String notInInvalid(String attribute, [String? alias]) =>
-      'Выбранное значение для ${resolveAttributeName(attribute, alias)} некорректно.';
+  String notInInvalid(
+    String attribute,
+    List<String> forbidden, [
+    String? alias,
+  ]) =>
+      'Выбранное значение для ${resolveAttributeName(attribute, alias)} некорректно. Не разрешено $forbidden';
 
   @override
   String unique(String attribute, [String? alias]) =>

@@ -18,7 +18,7 @@ class InRule extends ValidationRule {
   }) {
     final text = value?.toString() ?? '';
     if (allowed.contains(text)) return null;
-    return messages.inInvalid(attribute, alias);
+    return messages.inInvalid(attribute, allowed, alias);
   }
 }
 
@@ -39,6 +39,6 @@ class NotInRule extends ValidationRule {
   }) {
     final text = value?.toString() ?? '';
     if (!forbidden.contains(text)) return null;
-    return messages.notInInvalid(attribute, alias);
+    return messages.notInInvalid(attribute, forbidden, alias);
   }
 }
