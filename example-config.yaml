@@ -29,11 +29,11 @@ config:
     product_delete:
       id: "required|integer|min:1"
     product_get:
-      mp: "sometimes|string|in:Ozon,WB,Other"
-      code_rc: "sometimes|integer|unique:db.dictionary.product,code_rc,id"
+      mp: "sometimes|string"
+      code_rc: "sometimes|integer"
       name: "sometimes|string"
       multiplicity: "sometimes|integer|min:1"
-      barcode: "sometimes|string|unique:db.dictionary.product,barcode,id"
+      barcode: "sometimes|string"
       subject: "sometimes|string"
       packaging_type: "sometimes|string"
     pagination:
