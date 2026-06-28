@@ -27,12 +27,12 @@ void main() {
     test('createMethod exposes rpc metadata', () {
       final method = Validate.createMethod();
       expect(method.name, 'validate');
-      expect(method.getRequared(), containsAll(['name', 'data']));
+      expect(method.getRequared(), containsAll(['names', 'data']));
     });
 
     test('returns validation result map for valid data', () async {
       final result = await Validate().call({
-        'name': 'product',
+        'names': ['product'],
         'data': [
           {'barcode': '123'},
         ],
@@ -47,7 +47,7 @@ void main() {
     test('throws EvaError for unknown schema', () async {
       expect(
         () => Validate().call({
-          'name': 'unknown',
+          'names': ['unknown'],
           'data': [],
         }),
         throwsA(isA<EvaError>()),
@@ -60,7 +60,7 @@ void main() {
         throwsA(isA<EvaError>()),
       );
       expect(
-        () => Validate().call({'name': 'product', 'data': 'bad'}),
+        () => Validate().call({'names': ['product'], 'data': 'bad'}),
         throwsA(isA<EvaError>()),
       );
     });

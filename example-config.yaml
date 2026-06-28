@@ -36,3 +36,6 @@ config:
       barcode: "sometimes|string|unique:db.dictionary.product,barcode,id"
       subject: "sometimes|string"
       packaging_type: "sometimes|string"
+    pagination:
+      page: required|integer|min:1
+      pageSize: required|integer|min:10

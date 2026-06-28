@@ -6,20 +6,29 @@ class Validate {
   static const description = 'validate data against a named schema';
 
   Future<Map<String, dynamic>> call(Map<String, dynamic> params) async {
-    final schemaName = params['name'];
-    if (schemaName is! String || schemaName.isEmpty) {
-      throw EvaError(EvaErrorKind.invalidParams, 'param name: String is required');
+    final schemaNames = params['names'];
+    if (schemaNames is! List || schemaNames.isEmpty) {
+      throw EvaError(
+        EvaErrorKind.invalidParams,
+        'param names: list of strings is required',
+      );
     }
 
     final data = params['data'];
     if (data is! List) {
-      throw EvaError(EvaErrorKind.invalidParams, 'param data: list is required');
+      throw EvaError(
+        EvaErrorKind.invalidParams,
+        'param data: list is required',
+      );
     }
 
     Map<String, String>? fieldAliases;
     if (params['field_aliases'] != null) {
       if (params['field_aliases'] is! Map) {
-        throw EvaError(EvaErrorKind.invalidParams, 'param field_aliases: map is required');
+        throw EvaError(
+          EvaErrorKind.invalidParams,
+          'param field_aliases: map is required',
+        );
       }
       fieldAliases = {};
       for (final entry in (params['field_aliases'] as Map).entries) {
@@ -30,15 +39,30 @@ class Validate {
     }
 
     final engine = ValidatorEngine.getInstance();
-    if (engine.findSchema(schemaName) == null) {
-      throw EvaError(
-        EvaErrorKind.invalidParams,
-        'unknown validation schema: $schemaName',
-      );
+
+    final List<String> validatedSchemaNames = [];
+    for (final schemaName in schemaNames) {
+      if (schemaName is! String || schemaName.isEmpty) {
+        throw EvaError(
+          EvaErrorKind.invalidParams,
+          'each name in names must be a non-empty string',
+        );
+      }
+      if (engine.findSchema(schemaName) == null) {
+        throw EvaError(
+          EvaErrorKind.invalidParams,
+          'unknown validation schema: $schemaName',
+        );
+      }
+      validatedSchemaNames.add(schemaName);
     }
 
     try {
-      return (await engine.validate(schemaName, data, fieldAliases: fieldAliases)).toMap();
+      return (await engine.validate(
+        validatedSchemaNames,
+        data,
+        fieldAliases: fieldAliases,
+      )).toMap();
     } on ArgumentError catch (e) {
       throw EvaError(EvaErrorKind.invalidParams, e.message?.toString() ?? '$e');
     }
@@ -46,8 +70,12 @@ class Validate {
 
   static ServiceMethod createMethod() {
     return ServiceMethod(name, Validate().call, description)
-      ..required('name', 'String', 'validation schema name')
+      ..required('names', 'list', 'list of validation schema names')
       ..required('data', 'list', 'list of records to validate')
-      ..optional('field_aliases', 'map', 'optional field display names for error messages');
+      ..optional(
+        'field_aliases',
+        'map',
+        'optional field display names for error messages',
+      );
   }
 }

@@ -58,7 +58,7 @@ void main() {
     });
 
     test('casts string integers and returns validated fields only', () async {
-      final result = await engine.validate('product', [
+      final result = await engine.validate(['product'], [
         {
           'barcode': '123',
           'multiplicity': '5',
@@ -77,7 +77,7 @@ void main() {
     });
 
     test('returns required errors', () async {
-      final result = await engine.validate('product', [
+      final result = await engine.validate(['product'], [
         {'multiplicity': '5'},
       ]);
 
@@ -88,7 +88,7 @@ void main() {
     });
 
     test('returns type and range errors', () async {
-      final result = await engine.validate('product', [
+      final result = await engine.validate(['product', 'product'], [
         {
           'barcode': '123',
           'multiplicity': 'abc',
@@ -109,7 +109,7 @@ void main() {
     });
 
     test('casts numeric and boolean values', () async {
-      final result = await engine.validate('sensor_reading', [
+      final result = await engine.validate(['sensor_reading'], [
         {'value': '12.5', 'active': 'true'},
       ]);
 
@@ -120,7 +120,7 @@ void main() {
     });
 
     test('skips sometimes fields when absent', () async {
-      final result = await engine.validate('optional_note', [
+      final result = await engine.validate(['optional_note'], [
         {},
       ]);
 
@@ -129,7 +129,7 @@ void main() {
     });
 
     test('validates sometimes fields when present', () async {
-      final result = await engine.validate('optional_note', [
+      final result = await engine.validate(['optional_note'], [
         {'note': 'this is too long'},
       ]);
 
@@ -140,7 +140,7 @@ void main() {
     test('returns unique error when value already exists', () async {
       checker.seed('softkip.generic.db', 'barcode', '123');
 
-      final result = await engine.validate('product_unique', [
+      final result = await engine.validate(['product_unique'], [
         {'barcode': '123'},
       ]);
 
@@ -151,7 +151,7 @@ void main() {
     });
 
     test('passes unique check when value is available', () async {
-      final result = await engine.validate('product_unique', [
+      final result = await engine.validate(['product_unique'], [
         {'barcode': '999'},
       ]);
 
@@ -164,7 +164,7 @@ void main() {
     test('passes unique update when except id is provided', () async {
       checker.seed('softkip.generic.db', 'barcode', '123');
 
-      final result = await engine.validate('product_update', [
+      final result = await engine.validate(['product_update'], [
         {'barcode': '123', 'id': 5},
       ]);
 
@@ -174,14 +174,14 @@ void main() {
 
     test('throws for unknown schema', () async {
       expect(
-        () => engine.validate('missing', []),
+        () => engine.validate(['missing'], []),
         throwsA(isA<ArgumentError>()),
       );
     });
 
     test('throws when record is not a dict', () async {
       expect(
-        () => engine.validate('product', ['not-a-map']),
+        () => engine.validate(['product'], ['not-a-map']),
         throwsA(isA<ArgumentError>()),
       );
     });
@@ -195,7 +195,7 @@ void main() {
     });
 
     test('returns required errors in Russian', () async {
-      final result = await engine.validate('product', [
+      final result = await engine.validate(['product'], [
         {'multiplicity': '5'},
       ]);
 
@@ -208,7 +208,7 @@ void main() {
     test('returns unique error in Russian', () async {
       checker.seed('softkip.generic.db', 'barcode', '123');
 
-      final result = await engine.validate('product_unique', [
+      final result = await engine.validate(['product_unique'], [
         {'barcode': '123'},
       ]);
 

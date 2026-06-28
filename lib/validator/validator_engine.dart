@@ -27,16 +27,21 @@ class ValidatorEngine {
 
   ValidationSchema? findSchema(String name) => config.schema(name);
 
-  Future<ValidationResult> validate(String name, List<dynamic> data, {Map<String, String>? fieldAliases}) async {
-    final schema = config.schema(name);
-    if (schema == null) {
-      throw ArgumentError('unknown validation schema: $name');
+  Future<ValidationResult> validate(List<String> names, List<dynamic> data, {Map<String, String>? fieldAliases}) async {
+    if (names.length != data.length) {
+      throw ArgumentError('names and data must have the same length (${names.length} != ${data.length})');
     }
 
     final allErrors = <String, List<String>>{};
     final validatedRows = <Map<String, dynamic>>[];
 
     for (var index = 0; index < data.length; index++) {
+      final schemaName = names[index];
+      final schema = config.schema(schemaName);
+      if (schema == null) {
+        throw ArgumentError('unknown validation schema: $schemaName');
+      }
+
       final item = data[index];
       if (item is! Map) {
         throw ArgumentError('data[$index] must be a dict');
