@@ -27,7 +27,7 @@ class ValidatorEngine {
 
   ValidationSchema? findSchema(String name) => config.schema(name);
 
-  Future<ValidationResult> validate(String name, List<dynamic> data) async {
+  Future<ValidationResult> validate(String name, List<dynamic> data, {Map<String, String>? fieldAliases}) async {
     final schema = config.schema(name);
     if (schema == null) {
       throw ArgumentError('unknown validation schema: $name');
@@ -43,7 +43,7 @@ class ValidatorEngine {
       }
       final record = Map<String, dynamic>.from(item.cast());
       final prefix = '$index.';
-      final result = await _validateRecord(record, schema, prefix);
+      final result = await _validateRecord(record, schema, prefix, fieldAliases: fieldAliases);
       if (result.errors.isNotEmpty) {
         allErrors.addAll(result.errors);
       } else if (result.validated != null) {
@@ -60,8 +60,9 @@ class ValidatorEngine {
   Future<_RecordResult> _validateRecord(
     Map<String, dynamic> data,
     ValidationSchema schema,
-    String prefix,
-  ) async {
+    String prefix, {
+    Map<String, String>? fieldAliases,
+  }) async {
     final errors = <String, List<String>>{};
     final validated = <String, dynamic>{};
 
@@ -84,8 +85,10 @@ class ValidatorEngine {
       final fieldType = fieldTypeFromRules(rules);
       final fieldErrors = <String>[];
 
+      final alias = fieldAliases?[field];
+      
       for (final rule in applicableRules(rules).where(isPresenceRule)) {
-        final message = rule.validate(errorKey, value, messages);
+        final message = rule.validate(errorKey, value, messages, alias: alias);
         if (message != null) {
           fieldErrors.add(message);
           break;
@@ -94,7 +97,7 @@ class ValidatorEngine {
 
       if (fieldErrors.isEmpty) {
         for (final rule in applicableRules(rules).where(isTypeRule)) {
-          final message = rule.validate(errorKey, value, messages);
+          final message = rule.validate(errorKey, value, messages, alias: alias);
           if (message != null) {
             fieldErrors.add(message);
             break;
@@ -105,7 +108,7 @@ class ValidatorEngine {
       if (fieldErrors.isEmpty) {
         final constraintValue = _constraintValue(value, fieldType);
         for (final rule in applicableRules(rules).where(isConstraintRule)) {
-          final message = rule.validate(errorKey, constraintValue, messages);
+          final message = rule.validate(errorKey, constraintValue, messages, alias: alias);
           if (message != null) {
             fieldErrors.add(message);
             break;
@@ -121,6 +124,7 @@ class ValidatorEngine {
             constraintValue,
             data,
             messages,
+            alias: alias,
           );
           if (message != null) {
             fieldErrors.add(message);

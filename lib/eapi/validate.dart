@@ -16,6 +16,19 @@ class Validate {
       throw EvaError(EvaErrorKind.invalidParams, 'param data: list is required');
     }
 
+    Map<String, String>? fieldAliases;
+    if (params['field_aliases'] != null) {
+      if (params['field_aliases'] is! Map) {
+        throw EvaError(EvaErrorKind.invalidParams, 'param field_aliases: map is required');
+      }
+      fieldAliases = {};
+      for (final entry in (params['field_aliases'] as Map).entries) {
+        if (entry.key is String && entry.value is String) {
+          fieldAliases[entry.key] = entry.value;
+        }
+      }
+    }
+
     final engine = ValidatorEngine.getInstance();
     if (engine.findSchema(schemaName) == null) {
       throw EvaError(
@@ -25,7 +38,7 @@ class Validate {
     }
 
     try {
-      return (await engine.validate(schemaName, data)).toMap();
+      return (await engine.validate(schemaName, data, fieldAliases: fieldAliases)).toMap();
     } on ArgumentError catch (e) {
       throw EvaError(EvaErrorKind.invalidParams, e.message?.toString() ?? '$e');
     }
@@ -34,6 +47,7 @@ class Validate {
   static ServiceMethod createMethod() {
     return ServiceMethod(name, Validate().call, description)
       ..required('name', 'String', 'validation schema name')
-      ..required('data', 'list', 'list of records to validate');
+      ..required('data', 'list', 'list of records to validate')
+      ..optional('field_aliases', 'map', 'optional field display names for error messages');
   }
 }

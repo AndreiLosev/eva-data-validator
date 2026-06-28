@@ -12,14 +12,15 @@ class BooleanRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) {
+    ValidationMessages messages, {
+    String? alias,
+  }) {
     if (value is bool) return null;
     if (value is int && (value == 0 || value == 1)) return null;
     if (value is String) {
       final lower = value.toLowerCase();
       if (truthy.contains(lower) || falsy.contains(lower)) return null;
     }
-    return messages.boolean(attribute);
+    return messages.boolean(attribute, alias);
   }
 }

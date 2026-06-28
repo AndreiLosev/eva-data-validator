@@ -13,22 +13,23 @@ class SizeRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) {
+    ValidationMessages messages, {
+    String? alias,
+  }) {
     if (value is String) {
       if (value.length == size) return null;
-      return messages.sizeChars(attribute, size);
+      return messages.sizeChars(attribute, size, alias);
     }
     if (value is List) {
       if (value.length == size) return null;
-      return messages.sizeItems(attribute, size);
+      return messages.sizeItems(attribute, size, alias);
     }
     final num? n = _asNum(value);
     if (n != null) {
       if (n == size) return null;
-      return messages.sizeValue(attribute, size);
+      return messages.sizeValue(attribute, size, alias);
     }
-    return messages.sizeGeneric(attribute, size);
+    return messages.sizeGeneric(attribute, size, alias);
   }
 
   num? _asNum(dynamic value) {

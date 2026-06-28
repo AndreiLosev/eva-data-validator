@@ -13,10 +13,11 @@ class NumericRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) {
+    ValidationMessages messages, {
+    String? alias,
+  }) {
     if (value is num) return null;
     if (!strict && value is String && num.tryParse(value) != null) return null;
-    return messages.numeric(attribute);
+    return messages.numeric(attribute, alias);
   }
 }

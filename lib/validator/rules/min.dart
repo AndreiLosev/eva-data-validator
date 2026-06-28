@@ -13,22 +13,23 @@ class MinRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) {
+    ValidationMessages messages, {
+    String? alias,
+  }) {
     if (value is String) {
       if (value.length >= limit) return null;
-      return messages.minChars(attribute, limit);
+      return messages.minChars(attribute, limit, alias);
     }
     if (value is List) {
       if (value.length >= limit) return null;
-      return messages.minItems(attribute, limit);
+      return messages.minItems(attribute, limit, alias);
     }
     final num? n = _asNum(value);
     if (n != null) {
       if (n >= limit) return null;
-      return messages.minValue(attribute, limit);
+      return messages.minValue(attribute, limit, alias);
     }
-    return messages.minGeneric(attribute, limit);
+    return messages.minGeneric(attribute, limit, alias);
   }
 
   num? _asNum(dynamic value) {

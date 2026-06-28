@@ -10,7 +10,8 @@ class SometimesRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) =>
+    ValidationMessages messages, {
+    String? alias,
+  }) =>
       null;
 }

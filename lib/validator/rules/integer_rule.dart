@@ -13,13 +13,14 @@ class IntegerRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) {
+    ValidationMessages messages, {
+    String? alias,
+  }) {
     if (value is int && value is! double) return null;
     if (!strict && value is String) {
       final parsed = int.tryParse(value);
       if (parsed != null && !value.contains('.')) return null;
     }
-    return messages.integer(attribute);
+    return messages.integer(attribute, alias);
   }
 }

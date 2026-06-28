@@ -9,9 +9,10 @@ class ArrayRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) {
+    ValidationMessages messages, {
+    String? alias,
+  }) {
     if (value is List) return null;
-    return messages.array(attribute);
+    return messages.array(attribute, alias);
   }
 }

@@ -13,10 +13,11 @@ class RegexRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) {
+    ValidationMessages messages, {
+    String? alias,
+  }) {
     final text = value?.toString() ?? '';
     if (pattern.hasMatch(text)) return null;
-    return messages.regex(attribute);
+    return messages.regex(attribute, alias);
   }
 }

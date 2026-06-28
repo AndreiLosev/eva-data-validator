@@ -6,14 +6,16 @@ abstract class AsyncValidationRule extends ValidationRule {
     String attribute,
     dynamic value,
     Map<String, dynamic> record,
-    ValidationMessages messages,
-  );
+    ValidationMessages messages, {
+    String? alias,
+  });
 
   @override
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) =>
+    ValidationMessages messages, {
+    String? alias,
+  }) =>
       throw UnsupportedError('use validateAsync');
 }

@@ -9,9 +9,10 @@ class StringRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) {
+    ValidationMessages messages, {
+    String? alias,
+  }) {
     if (value is String) return null;
-    return messages.string(attribute);
+    return messages.string(attribute, alias);
   }
 }

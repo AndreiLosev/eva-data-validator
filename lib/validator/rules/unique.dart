@@ -23,8 +23,9 @@ class UniqueRule extends AsyncValidationRule {
     String attribute,
     dynamic value,
     Map<String, dynamic> record,
-    ValidationMessages messages,
-  ) async {
+    ValidationMessages messages, {
+    String? alias,
+  }) async {
     dynamic exceptId;
     if (exceptField != null && record.containsKey(exceptField)) {
       exceptId = record[exceptField];
@@ -37,7 +38,7 @@ class UniqueRule extends AsyncValidationRule {
       exceptId: exceptId,
     );
     if (taken) {
-      return messages.unique(attribute);
+      return messages.unique(attribute, alias);
     }
     return null;
   }

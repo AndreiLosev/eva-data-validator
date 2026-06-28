@@ -13,10 +13,11 @@ class EmailRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) {
+    ValidationMessages messages, {
+    String? alias,
+  }) {
     final text = value?.toString() ?? '';
     if (_emailPattern.hasMatch(text)) return null;
-    return messages.email(attribute);
+    return messages.email(attribute, alias);
   }
 }

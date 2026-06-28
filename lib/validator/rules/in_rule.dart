@@ -13,11 +13,12 @@ class InRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) {
+    ValidationMessages messages, {
+    String? alias,
+  }) {
     final text = value?.toString() ?? '';
     if (allowed.contains(text)) return null;
-    return messages.inInvalid(attribute);
+    return messages.inInvalid(attribute, alias);
   }
 }
 
@@ -33,10 +34,11 @@ class NotInRule extends ValidationRule {
   String? validate(
     String attribute,
     dynamic value,
-    ValidationMessages messages,
-  ) {
+    ValidationMessages messages, {
+    String? alias,
+  }) {
     final text = value?.toString() ?? '';
     if (!forbidden.contains(text)) return null;
-    return messages.notInInvalid(attribute);
+    return messages.notInInvalid(attribute, alias);
   }
 }
